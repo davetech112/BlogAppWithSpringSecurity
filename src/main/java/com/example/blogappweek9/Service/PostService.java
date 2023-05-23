@@ -1,15 +1,18 @@
 package com.example.blogappweek9.Service;
 
+import com.example.blogappweek9.DTO.PostDto;
 import com.example.blogappweek9.Model.Post;
 import com.example.blogappweek9.exception.CustomException;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface PostService {
-    Post savePost(Post post, Long id) throws CustomException;
+    Post savePost(PostDto post) throws CustomException;
     List<Post> findAll();
     Post findById(Long id);
-    Post updatePost(Long id, Post post, Long adminId);
-    String deletePost(Long id, Long adminId);
+    Post updatePost(Long id, PostDto post);
+    String deletePost(Long id);
     int postLikes(Long postId);
+
 }

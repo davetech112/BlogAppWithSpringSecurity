@@ -1,13 +1,13 @@
 package com.example.blogappweek9.Service;
 
 import com.example.blogappweek9.DTO.UserDTO;
-import com.example.blogappweek9.Model.User;
+import com.example.blogappweek9.Model.UserEntity;
 
 import java.util.List;
 
 public interface UserService {
-    User saveUser(User user);
-    String deleteUser(Long id, Long loggedInUserId);
-    List<User> findAll();
-    User loginUser(UserDTO userDTO);
+    UserEntity saveUser(UserDTO userEntity);
+    String deleteUser(Long id);
+    List<UserEntity> findAll();
+
 }

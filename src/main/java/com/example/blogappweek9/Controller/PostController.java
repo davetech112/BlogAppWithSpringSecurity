@@ -1,17 +1,20 @@
 package com.example.blogappweek9.Controller;
 
+import com.example.blogappweek9.DTO.PostDto;
 import com.example.blogappweek9.Model.Post;
 import com.example.blogappweek9.Service.PostService;
 import com.example.blogappweek9.exception.CustomException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("post")
+@RequestMapping("api/v1/post")
 public class PostController {
     private PostService postService;
     @Autowired
@@ -20,15 +23,21 @@ public class PostController {
     }
 
     @PostMapping("/new-post")
-    public Post newPost(@RequestBody Post post, HttpServletRequest httpServletRequest) throws CustomException {
-        HttpSession session = httpServletRequest.getSession();
-        Long loggedUser = (Long)session.getAttribute("id");
-        return postService.savePost(post, loggedUser);
+    public Post newPost(@RequestBody PostDto post) throws CustomException {
+
+        return postService.savePost(post);
     }
 
     @GetMapping("/posts")
-    public List<Post> allPosts(){
-        return postService.findAll();
+    public ResponseEntity<List<Post>> allPosts() {
+        List<Post> posts = postService.findAll();
+
+        if (posts.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(posts);
+
+        }
+
+        return ResponseEntity.ok(posts);
     }
 
     @GetMapping("/{id}")
@@ -37,18 +46,20 @@ public class PostController {
     }
 
     @PutMapping("/post-edit/{id}")
-    public Post editPost(@PathVariable("id") Long id, @RequestBody Post post, HttpServletRequest httpServletRequest){
-        HttpSession session = httpServletRequest.getSession();
-        Long loggedUser = (Long)session.getAttribute("id");
-        return postService.updatePost(id, post, loggedUser);
+    public Post editPost(@PathVariable("id") Long id, @RequestBody PostDto post){
+
+        return postService.updatePost(id, post);
     }
 
     @DeleteMapping("/{id}/delete")
-    public String deletePost(@PathVariable("id") Long id,
-                           HttpServletRequest httpServletRequest){
-        HttpSession session = httpServletRequest.getSession();
-        Long loggedUser = (Long)session.getAttribute("id");
-        return postService.deletePost(id, loggedUser);
+    public ResponseEntity<String> deletePost(@PathVariable("id") Long id){
+        try{
+            String response = postService.deletePost(id);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>("invalid operation", HttpStatus.BAD_REQUEST);
+        }
+
 
     }
     @GetMapping("/{id}/likes")

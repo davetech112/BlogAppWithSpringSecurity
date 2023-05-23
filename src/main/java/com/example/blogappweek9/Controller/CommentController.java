@@ -5,10 +5,12 @@ import com.example.blogappweek9.Service.CommentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("post/{id}")
+@RequestMapping("api/v1/comment")
 public class CommentController {
     private CommentService commentService;
     @Autowired
@@ -16,12 +18,16 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    @PostMapping("/comment-new")
-    public String addComment(@PathVariable("id") Long postId, @RequestBody Comment comment
-            , HttpServletRequest httpServletRequest){
-        System.out.println("here");
-        HttpSession session = httpServletRequest.getSession();
-        Long userId = (Long)session.getAttribute("id");
-        return commentService.addComment(userId,comment,postId);
+    @PostMapping("/{postId}")
+    public ResponseEntity<String> addComment(@PathVariable("postId") Long postId, @RequestBody Comment comment
+            ){
+       try{
+            commentService.addComment(comment,postId);
+            return new ResponseEntity<>("successful operation", HttpStatus.OK);
+       } catch (Exception e){
+           return new ResponseEntity<>("operation not successful", HttpStatus.BAD_REQUEST);
+       }
+
+
     }
 }

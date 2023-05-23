@@ -17,7 +17,7 @@ public class Liked {
 //
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id")
-    private User user;
+    private UserEntity userEntity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id",referencedColumnName = "id") // use the correct column name

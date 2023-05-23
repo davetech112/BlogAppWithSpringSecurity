@@ -5,10 +5,12 @@ import com.example.blogappweek9.Service.LikeService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("post")
+@RequestMapping("api/v1/dislike")
 public class DislikeController {
     private DislikeService dislikeService;
     @Autowired
@@ -17,9 +19,13 @@ public class DislikeController {
     }
 
     @PostMapping("{id}/dislike")
-    public String addLike(@PathVariable("id") Long id,@RequestParam("dislike") boolean isdisliked, HttpServletRequest httpServletRequest){
-        HttpSession session = httpServletRequest.getSession();
-        Long userId = (Long) session.getAttribute("id");
-        return dislikeService.addDislikeToPost(id, userId, isdisliked);
+    public ResponseEntity<String> addLike(@PathVariable("id") Long id,@RequestParam("dislike") boolean isdisliked){
+        try{
+            String response = dislikeService.addDislikeToPost(id, isdisliked);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>("something went wrong", HttpStatus.BAD_REQUEST);
+        }
+
     }
 }

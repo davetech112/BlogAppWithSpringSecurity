@@ -1,13 +1,13 @@
 package com.example.blogappweek9.Service.ServiceImpl;
 
 import com.example.blogappweek9.Model.Dislike;
-import com.example.blogappweek9.Model.Liked;
 import com.example.blogappweek9.Model.Post;
-import com.example.blogappweek9.Model.User;
+import com.example.blogappweek9.Model.UserEntity;
 import com.example.blogappweek9.Respositories.DislikeRepository;
 import com.example.blogappweek9.Respositories.PostRepository;
 import com.example.blogappweek9.Respositories.UserRepository;
 import com.example.blogappweek9.Service.DislikeService;
+import com.example.blogappweek9.config.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,12 +28,12 @@ public class DislikeServiceImpl implements DislikeService {
 
 
     @Override
-    public String addDislikeToPost(Long postId, Long userId, boolean disliked) {
+    public String addDislikeToPost(Long postId, boolean disliked) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
-        User user = userRepository.findById(userId)
+        UserEntity userEntity = userRepository.findByEmail(SecurityUtil.getSessionUser())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        Optional<Dislike> dislikeOptional = dislikeRepository.findByUserAndPost(user, post);
+        Optional<Dislike> dislikeOptional = dislikeRepository.findbyIdAndPostID(userEntity.getId(), post.getId());
 
         if (disliked) {
             if (dislikeOptional.isPresent()) {
@@ -41,7 +41,7 @@ public class DislikeServiceImpl implements DislikeService {
             } else {
                 Dislike dislike = new Dislike();
                 dislike.setPost(post);
-                dislike.setUser(user);
+                dislike.setUserEntity(userEntity);
                 dislikeRepository.save(dislike);
                 post.getDislikes().add(dislike);
                 postRepository.save(post);
@@ -58,5 +58,6 @@ public class DislikeServiceImpl implements DislikeService {
                 return "You have not disliked this post yet";
             }
         }
-    }
+
+   }
 }

@@ -1,8 +1,12 @@
 package com.example.blogappweek9.Respositories;
 
-import com.example.blogappweek9.Model.User;
+import com.example.blogappweek9.Model.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface UserRepository extends JpaRepository<User, Long> {
-    User findByUsernameAndPassword(String username, String password);
+import java.util.Optional;
+@Repository
+public interface UserRepository extends JpaRepository<UserEntity, Long> {
+
+    Optional<UserEntity> findByEmail(String email);
 }

@@ -2,11 +2,12 @@ package com.example.blogappweek9.Service.ServiceImpl;
 
 import com.example.blogappweek9.Model.Comment;
 import com.example.blogappweek9.Model.Post;
-import com.example.blogappweek9.Model.User;
+import com.example.blogappweek9.Model.UserEntity;
 import com.example.blogappweek9.Respositories.CommentRepository;
 import com.example.blogappweek9.Respositories.PostRepository;
 import com.example.blogappweek9.Respositories.UserRepository;
 import com.example.blogappweek9.Service.CommentService;
+import com.example.blogappweek9.config.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,11 +26,11 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public String addComment(Long userId, Comment comment, Long postId) {
-        User user = userRepository.findById(userId).orElseThrow(()->new NoSuchElementException("User not Found"));
+    public String addComment(Comment comment, Long postId) {
+        UserEntity userEntity = userRepository.findByEmail(SecurityUtil.getSessionUser()).orElseThrow(()->new NoSuchElementException("User not Found"));
         Post post = postRepository.findById(postId).orElseThrow(()->new RuntimeException("Post not found"));
         comment.setPost(post);
-        comment.setUser(user);
+        comment.setUserEntity(userEntity);
         commentRepository.save(comment);
         post.getComments().add(comment);
         postRepository.save(post);

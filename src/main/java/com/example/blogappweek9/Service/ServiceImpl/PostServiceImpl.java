@@ -1,14 +1,20 @@
 package com.example.blogappweek9.Service.ServiceImpl;
 
+import com.example.blogappweek9.DTO.PostDto;
+import com.example.blogappweek9.DTO.UserDTO;
 import com.example.blogappweek9.Enum.Role;
 import com.example.blogappweek9.Model.Post;
-import com.example.blogappweek9.Model.User;
+import com.example.blogappweek9.Model.UserEntity;
 import com.example.blogappweek9.Respositories.PostRepository;
 import com.example.blogappweek9.Respositories.UserRepository;
 import com.example.blogappweek9.Service.PostService;
+import com.example.blogappweek9.config.SecurityUtil;
 import com.example.blogappweek9.exception.CustomException;
+import com.example.blogappweek9.exception.UserNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,18 +32,23 @@ public class PostServiceImpl implements PostService {
 
 
     @Override
-    public Post savePost(Post post, Long id) throws CustomException {
+    public Post savePost(PostDto post) throws CustomException {
 
-            User user = userRepository.findById(id).orElseThrow(() -> new NullPointerException("User does not exist"));
+            UserEntity userEntity = userRepository.findByEmail(SecurityUtil.getSessionUser()).orElseThrow(() -> new NullPointerException("User does not exist"));
 
-            if (user.getRole().equals(Role.ADMIN) && !user.isBlocked()) {
-                post.setUser(user);
-                return postRepository.save(post);
+
+            if (userEntity.getRole().equals(Role.ADMIN) && !userEntity.isBlocked()) {
+                Post post1 = new Post();
+                post1.setTitle(post.getTitle());
+                post1.setPost(post.getPost());
+                post1.setUserEntity(userEntity);
+                return postRepository.save(post1);
             }
          else{
             throw new CustomException("Unable to make new post. please contact admin");
         }
     }
+
 
     @Override
     public List<Post> findAll() {
@@ -50,10 +61,10 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Post updatePost(Long id, Post post, Long adminId) {
-        User user = userRepository.findById(adminId)
-                .orElseThrow(()->new RuntimeException("user with id "+adminId+" does not exist"));
-        if(user.getRole().equals(Role.ADMIN)) {
+    public Post updatePost(Long id, PostDto post) {
+        UserEntity userEntity = userRepository.findByEmail(SecurityUtil.getSessionUser())
+                .orElseThrow(()->new RuntimeException("user with id "+" does not exist"));
+        if(userEntity.getRole().equals(Role.ADMIN)) {
             Post currentPost = postRepository.findById(id).orElseThrow(() -> new NullPointerException("post does not exist"));
             currentPost.setTitle(post.getTitle());
             currentPost.setPost(post.getPost());
@@ -63,10 +74,10 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public String deletePost(Long id, Long adminId) {
-        User user = userRepository.findById(adminId)
-                .orElseThrow(()->new RuntimeException("user with id "+adminId+" does not exist"));
-        if(user.getRole().equals(Role.ADMIN)) {
+    public String deletePost(Long id) {
+        UserEntity userEntity = userRepository.findByEmail(SecurityUtil.getSessionUser())
+                .orElseThrow(()->new RuntimeException("user with id "+" does not exist"));
+        if(userEntity.getRole().equals(Role.ADMIN)) {
             //if(delete.equals(true))
             postRepository.deleteById(id);
             return "post deleted successfully";

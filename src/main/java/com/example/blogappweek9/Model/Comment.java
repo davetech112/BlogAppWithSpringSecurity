@@ -11,7 +11,7 @@ public class Comment {
     private Long id;
     private String comment;
     @OneToOne
-    private User user;
+    private UserEntity userEntity;
     @ManyToOne
     private Post post;
 

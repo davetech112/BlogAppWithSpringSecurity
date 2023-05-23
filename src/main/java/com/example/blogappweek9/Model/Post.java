@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.bind.annotation.ModelAttribute;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +19,8 @@ public class Post {
     private Long id;
     private String title;
     private String post;
-    @ManyToOne
-    private User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private UserEntity userEntity;
     @OneToMany
     @JsonIgnoreProperties("post")
     private List<Comment> comments = new ArrayList<>();
